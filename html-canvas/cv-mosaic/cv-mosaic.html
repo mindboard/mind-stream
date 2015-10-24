@@ -1,0 +1,85 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Computer Vision Mosaic</title>
+</head>
+<body>
+
+<canvas id="myCanvas" style="border:solid 1px;" width="300" height="300"></canvas>
+
+<script>
+
+// 設定(モザイクの細かさを指定)
+var oneSegmentWidth  = 10;
+var oneSegmentHeight = 10;
+
+
+//
+// main
+//
+
+var canvas = document.getElementById("myCanvas");
+var ctx = canvas.getContext("2d");
+
+var img = new Image();
+img.src = "imgs/coffee.png";
+img.onload = function() {
+    ctx.drawImage(img, 0, 0);
+
+    var imageData = ctx.getImageData(0, 0, 300, 300);
+
+    for(var y=0; y<(300/oneSegmentHeight); y=y+1){
+        for(var x=0; x<(300/oneSegmentWidth); x=x+1 ){
+
+            var index = y*oneSegmentHeight*300*4 + x*oneSegmentWidth*4;
+
+            // この区画のindexを収集
+            var collectIndexArray = function(){
+                var indexArray = [];
+                for( var y1=0; y1<oneSegmentHeight; y1=y1+1 ){
+                    for( var x1=0; x1<oneSegmentWidth; x1=x1+1 ){
+                        var index2 = index + y1*300*4 + x1*4;
+                        indexArray.push( index2 );
+                    }
+                }
+                return indexArray;
+            };
+
+            var indexArray = collectIndexArray();
+
+            // この区画の平均の色を計算して適用
+            var totalValue = { r:0, g:0, b:0 };
+
+            for(var i=0; i<indexArray.length; i=i+1){
+                var index2 = indexArray[i];
+
+                var r=imageData.data[index2];
+                var g=imageData.data[index2+1];
+                var b=imageData.data[index2+2];
+                //var a = imageData.data[index2+3]; // skip alpha now
+
+                totalValue.r = totalValue.r + r;
+                totalValue.g = totalValue.g + g;
+                totalValue.b = totalValue.b + b;
+            }
+
+            var avgR = totalValue.r/indexArray.length;
+            var avgG = totalValue.g/indexArray.length;
+            var avgB = totalValue.b/indexArray.length;
+
+            for(var i=0; i<indexArray.length; i=i+1){
+                var index2 = indexArray[i];
+                imageData.data[index2]   = avgR;
+                imageData.data[index2+1] = avgG;
+                imageData.data[index2+2] = avgB;
+            }
+        }
+    }
+
+    ctx.putImageData(imageData,0,0);
+}
+
+</script>
+</body>
+</html>

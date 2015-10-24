@@ -1,0 +1,241 @@
+<!doctype html>
+<html lang="en" class="no-js">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Computer Vision</title>
+</head>
+<body>
+<h1>Find cluster with edge (2)</h1>
+
+<p>source image :</p>
+<p><img src="imgs/lazy-dog-rotated.png" style="border:solid 1px;" /></p>
+
+<p>A) applying mosaic filter :</p>
+<canvas id="67b5881c-fc43-4ead-adf5-f83939ad6b83" style="border:solid 1px;" width="300" height="300"></canvas>
+
+<p>B) finding cluster with edge :</p>
+<canvas id="f8ff678f-6aca-432a-95c9-f56cc6a8797b" style="border:solid 1px;" width="300" height="300"></canvas>
+
+<script>
+
+var createContextA = function(){ return document.getElementById("67b5881c-fc43-4ead-adf5-f83939ad6b83").getContext("2d"); };
+var createContextB = function(){ return document.getElementById("f8ff678f-6aca-432a-95c9-f56cc6a8797b").getContext("2d"); };
+
+/**
+ * @param {Object} ctx - context
+ * @param {Object} img - target image
+ * @param {number} oneSegmentWidth - x方向のモザイクの細かさを指定
+ * @param {number} oneSegmentHeight - y方向のモザイクの細かさを指定
+ */
+var applyMosaicFilter = function( ctx, img, oneSegmentWidth, oneSegmentHeight ){
+
+    ctx.drawImage(img, 0, 0);
+
+    var imageData = ctx.getImageData(0, 0, 300, 300);
+
+    for(var y=0; y<(300/oneSegmentHeight); y=y+1){
+        for(var x=0; x<(300/oneSegmentWidth); x=x+1 ){
+
+            var index = y*oneSegmentHeight*300*4 + x*oneSegmentWidth*4;
+
+            // この区画のindexを収集
+            var collectIndexArray = function(){
+                var indexArray = [];
+                for( var y1=0; y1<oneSegmentHeight; y1=y1+1 ){
+                    for( var x1=0; x1<oneSegmentWidth; x1=x1+1 ){
+                        var index2 = index + y1*300*4 + x1*4;
+                        indexArray.push( index2 );
+                    }
+                }
+                return indexArray;
+            };
+
+            var indexArray = collectIndexArray();
+
+            // この区画の平均の色を計算して適用
+            var totalValue = { r:0, g:0, b:0 };
+
+            for(var i=0; i<indexArray.length; i=i+1){
+                var index2 = indexArray[i];
+
+                var r=imageData.data[index2];
+                var g=imageData.data[index2+1];
+                var b=imageData.data[index2+2];
+                //var a = imageData.data[index2+3]; // skip alpha now
+
+                totalValue.r = totalValue.r + r;
+                totalValue.g = totalValue.g + g;
+                totalValue.b = totalValue.b + b;
+            }
+
+            var avgR = totalValue.r/indexArray.length;
+            var avgG = totalValue.g/indexArray.length;
+            var avgB = totalValue.b/indexArray.length;
+
+            for(var i=0; i<indexArray.length; i=i+1){
+                var index2 = indexArray[i];
+                imageData.data[index2]   = avgR;
+                imageData.data[index2+1] = avgG;
+                imageData.data[index2+2] = avgB;
+            }
+        }
+    }
+
+    ctx.putImageData(imageData,0,0);
+};
+
+/**
+ * @param {Object} ctx
+ */
+var createZeroOrOneArray = function( ctx ){
+    var imageData = ctx.getImageData(0, 0, 300, 300);
+
+    var isWhitePixel = function(r,g,b){
+        return (r>240 && g>240 && b>240); // if it's almost white, it's as white. 白に近ければ白と見なす.
+    };
+
+    var pixelArray = [];
+
+    for(var y=0; y<300; y=y+1){
+        for(var x=0; x<300; x=x+1 ){
+            var index = y*300*4 + x*4;
+
+            var r=imageData.data[index];
+            var g=imageData.data[index+1];
+            var b=imageData.data[index+2];
+            //var a=imageData.data[index+3]; // 今は alpha は考えない
+
+            //
+            // white -> 0
+            // not white -> 1
+            //
+            if( isWhitePixel( r,g,b )==true ){
+                pixelArray.push( 0 );
+            }
+            else {
+                pixelArray.push( 1 );
+            }
+        }
+    }
+
+    return pixelArray;
+};
+
+
+//
+// m が 自分(self)
+//
+//   a 
+// b m c
+//   d 
+//
+// 端の場合は -1 を返す.
+//
+
+var createPoint = function( pixelArray, x,y ){
+
+    var pt = {
+        m : function(){
+            var index = y*300 + x;
+            return pixelArray[index];
+        },
+        a : function(){
+            if( y==0 ){ return -1; }
+            var index = (y-1)*300 + x;
+            return pixelArray[index];
+        },
+        b : function(){
+            if( x==0 ){ return -1; }
+            var index = (y)*300 + (x-1);
+            return pixelArray[index];
+        },
+        c : function(){
+            if( x==(300-1) ){ return -1; }
+            var index = (y)*300 + (x+1);
+            return pixelArray[index];
+        },
+        d : function(){
+            if( y==(300-1) ){ return -1; }
+            var index = (y+1)*300 + (x);
+            return pixelArray[index];
+        },
+    };
+
+    var isZeroOrMinusOne = function( value ){ return (value==0 || value==-1 ); };
+
+    pt.leftTopEdge = function(){ return ( pt.m()==1 && isZeroOrMinusOne(pt.a()) && isZeroOrMinusOne(pt.b()) ); };
+
+    pt.leftEdge = function(){ return ( pt.m()==1 && isZeroOrMinusOne(pt.b()) ); };
+    pt.topEdge = function(){ return ( pt.m()==1 && isZeroOrMinusOne(pt.a()) ); };
+    pt.rightEdge = function(){ return ( pt.m()==1 && isZeroOrMinusOne(pt.c()) ); };
+    pt.bottomEdge = function(){ return ( pt.m()==1 && isZeroOrMinusOne(pt.d()) ); };
+
+    pt.edge = function(){
+        return ( pt.leftEdge() || pt.topEdge() || pt.rightEdge() || pt.bottomEdge() );
+    };
+
+    return pt;
+};
+
+
+var drawKatamariWithOutline = function( pixelArray, ctx ){
+
+    var colorWhite = { r:255, b:255, g:255 }; 
+    var colorGray  = { r:240, b:240, g:240 }; 
+    var colorRed   = { r:255, b:0,   g:0 }; 
+
+    var imageData = ctx.getImageData(0, 0, 300, 300);
+    console.log( imageData.data );
+    console.log( imageData.data.length );
+
+    for(var y=0; y<300; y=y+1){
+        for(var x=0; x<300; x=x+1 ){
+
+            var pt = createPoint( pixelArray, x,y );
+            var zeroOrOne = pt.m();
+
+            var color = colorWhite;
+            if( zeroOrOne==1 ){
+                color = colorGray;
+            }
+            if( pt.edge()==true ){
+                color = colorRed;
+            }
+
+            var index2 = y*300*4 + x*4;
+            imageData.data[index2]   = color.r;
+            imageData.data[index2+1] = color.g;
+            imageData.data[index2+2] = color.b;
+            imageData.data[index2+3] = 255; // always set alpha value 255. 
+        }
+    }
+
+    ctx.putImageData(imageData,0,0);
+};
+
+
+//
+// main
+//
+
+var img = new Image();
+img.src = "imgs/lazy-dog-rotated.png";
+img.onload = function() {
+
+    // step0
+    var ctxA = createContextA();
+
+    // step1
+    applyMosaicFilter( ctxA, img, 5,5 )
+
+    // step2
+    var pixelArray = createZeroOrOneArray( ctxA );
+
+    // step3
+    var ctxB = createContextB();
+    drawKatamariWithOutline( pixelArray, ctxB );
+};
+</script>
+
+</body>
+</html>

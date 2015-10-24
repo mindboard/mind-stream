@@ -1,0 +1,126 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Mind Stream</title>
+<script src="http://code.jquery.com/jquery-1.11.2.min.js"></script>
+</head>
+<body>
+<canvas id="mcanvas" width="400" height="300" style="width:400px;height:300px;border:solid 1px #333;"></canvas>
+
+<script>
+var Point = function(params){
+    this.x=params.x;
+    this.y=params.y;
+};
+
+var Rectangle = function(params){
+    this.x=params.x;
+    this.y=params.y;  
+    this.width=params.width;
+    this.height=params.height;
+};
+
+var Label = function(params){
+    this.rectangle=params.rectangle;
+    this.text = params.text;
+    this.fontSize = params.fontSize;
+    if( this.fontSize == null ) this.fontSize=12;
+};
+
+
+Label.prototype.contains = function(point){
+    var rect = this.rectangle;
+    if( rect.x < point.x && point.x < rect.x+rect.width && rect.y < point.y && point.y < rect.y+rect.height ){
+        return true;
+    }
+    return false;
+};
+
+Label.prototype.draw = function(ctx){
+    var rect = this.rectangle;
+
+    ctx.beginPath();
+    ctx.moveTo(rect.x,rect.y);
+    ctx.lineTo(rect.x+rect.width,rect.y);
+    ctx.lineTo(rect.x+rect.width,rect.y+rect.height);
+    ctx.lineTo(rect.x, rect.y+rect.height);
+    ctx.closePath();
+
+    ctx.fillStyle = "rgba(200, 200, 200, 0.5)";
+    ctx.fill();
+
+    ctx.font=this.fontSize+'pt Arial';
+    ctx.fillStyle = 'rgb(0,0,0)';
+    ctx.fillText( this.text,rect.x,rect.y+this.fontSize);
+};
+
+var createDefaultLabel = function(x,y,text){
+    var mRect = new Rectangle( {x:x,y:y,width:100,height:14} );
+    var retVal = new Label( {rectangle:mRect,text:text,fontSize:14} );
+    return retVal;
+};
+
+
+var getPoint = function(e){
+    var mDiv = e.target;
+    var mLeft  = mDiv.getBoundingClientRect().left;
+    var mTop   = mDiv.getBoundingClientRect().top;
+
+    // 相対座標の計算
+    var html = document.documentElement;
+    var x = e.pageX-mLeft -html.clientLeft;
+    var y = e.pageY-mTop  -html.clientTop;
+
+    return new Point( {x:x,y:y} );
+};
+
+
+var myfunc = function(){
+
+    document.ontouchmove = function(e) { e.preventDefault(); };
+
+    var canvas = document.getElementById('mcanvas');
+    var ctx = canvas.getContext('2d');
+
+    var mLabel = createDefaultLabel(10,10,'drag me!');
+    mLabel.draw(ctx);
+
+
+    var dx = 0;
+    var dy = 0;
+
+    var mouseListener = function(e){
+        var pt = getPoint(e);
+
+        mLabel.rectangle.x = pt.x - dx;
+        mLabel.rectangle.y = pt.y - dy;
+
+        ctx.clearRect(0, 0, canvas.width, canvas.height);
+        mLabel.draw(ctx);
+    };
+
+    $('#mcanvas').bind('mousedown', function(e2){
+        var pt = getPoint(e2);
+
+        if( mLabel.contains(pt) ){
+            dx = pt.x - mLabel.rectangle.x
+            dy = pt.y - mLabel.rectangle.y
+            $('#mcanvas').bind('mousemove',mouseListener);
+        }
+    });
+    $('#mcanvas').bind('mouseup',   function(e2){ $('#mcanvas').unbind('mousemove'); } );
+
+    //$('#mcanvas').bind('click', mouseListener );
+    //$('#mcanvas').bind('mousemove', mouseListener );
+    //$('#mcanvas').bind('mousemove mousedown', mouseListener );
+    //$('#mcanvas').bind('touchmove', mouseListener );
+};
+
+
+$(document).ready(myfunc);
+
+</script>
+
+</body>
+</html>
