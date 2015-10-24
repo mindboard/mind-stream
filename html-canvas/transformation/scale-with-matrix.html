@@ -1,0 +1,92 @@
+<!doctype html>
+<html lang="en" class="no-js">
+<head>
+<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+<title>Transformation</title>
+</head>
+<body>
+
+<canvas id="myCanvas" style="border:solid 1px;" width="300" height="300"></canvas>
+
+<script>
+
+// 四角形を描画
+var fillRect = function( ctx, pointList,color ){
+    ctx.beginPath();
+    ctx.moveTo(pointList[0].x,pointList[0].y);
+    for( var i=1; i<pointList.length; i++){
+        ctx.lineTo( pointList[i].x, pointList[i].y );
+    }
+    ctx.lineTo(pointList[0].x,pointList[0].y);
+
+    ctx.fillStyle = color;
+    ctx.fill();
+};
+
+//
+// transform pt with matrix
+//
+// | 0 1 2 |   |pt.x|
+// | 3 4 5 | x |pt.y|
+// | 6 7 8 |   |1   |
+//
+var transform = function( matrix, pt ){
+    return {
+        x: matrix[0]*pt.x + matrix[1]*pt.y + matrix[2]*1,
+        y: matrix[0+3]*pt.x + matrix[1+3]*pt.y + matrix[2+3]*1 }
+};
+
+
+//
+// main
+//
+var COLOR_RED = '#993333';
+var COLOR_GREEN = '#339933';
+
+var canvas = document.getElementById("myCanvas");
+var ctx = canvas.getContext("2d");
+ctx.translate(150,150);// キャンバスの中心を原点に変更
+
+// 20x20 の大きさの四角を生成（各頂点 pointA,B,C,Dを計算）
+var rectSize = {width:20, height:20};
+var pointA = {x:0-rectSize.width/2,        y:0-rectSize.height/2};
+var pointB = {x:pointA.x+rectSize.width,   y:pointA.y};
+var pointC = {x:pointA.x+rectSize.width,   y:pointA.y+rectSize.height};
+var pointD = {x:pointA.x,                  y:pointA.y+rectSize.height};
+
+// 1) 中心に四角を描画
+var pointList1 = [pointA,pointB,pointC,pointD]; 
+fillRect( ctx, pointList1,COLOR_RED )
+
+// 2) 2倍にスケール
+var matrixScale = [
+    2,0,0,
+    0,2,0,
+    0,0,1
+];
+
+var pointList2 = [];
+for( var i=0; i<pointList1.length; i++){
+    pointList2.push( transform( matrixScale, pointList1[i] ) );
+}
+
+
+// 3) (100,100) 平行移動して四角を描画
+var matrixTranslation = [
+    1,0,100,
+    0,1,100,
+    0,0,1
+];
+
+// 3-1) matrixTranslation を使って点を平行移動して、それを配列 pointList2 へ追加する.
+var pointList3 = [];
+for( var i=0; i<pointList2.length; i++){
+    pointList3.push( transform( matrixTranslation, pointList2[i] ) );
+}
+
+// 2-2) 四角形の描画
+fillRect( ctx, pointList3, COLOR_GREEN );
+</script>
+
+</body>
+</html>

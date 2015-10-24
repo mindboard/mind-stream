@@ -4,5 +4,5 @@
 ## html-canvas
 
 Recommend to use Firefox.
-In Chrome, security error might occur. 
+If use Chrome, security error might occur in some html code. 
 
