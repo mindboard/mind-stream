@@ -1,0 +1,63 @@
+<html>
+<body style="background-color:#ccc;">
+<canvas id="myCanvas" style="background-color:white;border:none;" width="500" height="500" />
+
+<script >
+
+var point = function( x, y ){ return {x:x,y:y}; };
+
+var doStroke = function(ctx, pointList ){
+	if( pointList.length<2 ){ return ; }
+
+	var pt0 = pointList[0]
+	ctx.moveTo(pt0.x,pt0.y);
+
+	for( var i=1; i<pointList.length; i++ ){
+		var pt1 = pointList[i];
+		ctx.lineTo(pt1.x,pt1.y);
+	}
+};
+
+var doLines = function(ctx, counter, r, startPoint, degree0  ){
+	if( counter<0 ){
+		return ;
+	}
+
+	ctx.beginPath();
+
+	// 40do hiraku
+	var degree1 = degree0+40;
+
+	var pointO = point(startPoint.x, startPoint.y);
+
+	var radian0 = degree0*Math.PI/180;
+	var pointA = point( pointO.x+r*Math.cos(radian0), pointO.y+r*Math.sin(radian0) ); 
+	doStroke(ctx, [pointO,pointA]);
+
+	var radian1 = degree1*Math.PI/180;
+	var pointB = point( pointO.x+r*Math.cos(radian1), pointO.y+r*Math.sin(radian1) ); 
+	doStroke(ctx, [pointO,pointB]);
+
+	ctx.strokeStyle = "blue";
+	ctx.lineWidth = 1.0;
+	ctx.stroke();
+
+	//
+	// recursion
+	//
+	doLines(ctx, counter-1, r*0.91, pointA, degree0-20 );
+	//doLines(ctx, counter-1, r*0.8, pointB, degree0+20 );
+};	
+
+
+var canvas = document.getElementById("myCanvas");
+var ctx = canvas.getContext("2d");
+
+var width  = canvas.width;
+var height = canvas.height;
+
+doLines(ctx, 100, 60, point(width*(3/4),height/2), 250 );
+</script>
+
+</body>
+</html>
