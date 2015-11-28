@@ -10,32 +10,32 @@ var radian = function( degree ){ return degree * Math.PI/180; };
 // centerPoint ... 中心の点
 // r ... 半径
 var drawCircle = function(ctx,centerPoint,r){
-	ctx.beginPath();
-	
-	var startAngle = radian(0);
-	var endAngle   = radian(360);
-	ctx.arc(centerPoint.x, centerPoint.y, r, startAngle, endAngle, false)
-	
-	ctx.stroke();
+    ctx.beginPath();
+    
+    var startAngle = radian(0);
+    var endAngle   = radian(360);
+    ctx.arc(centerPoint.x, centerPoint.y, r, startAngle, endAngle, false)
+    
+    ctx.stroke();
 };
 
 var drawLine = function(ctx, startPoint, endPoint){
-	ctx.beginPath();
+    ctx.beginPath();
 
-	ctx.moveTo(startPoint.x, startPoint.y);
-	ctx.lineTo(endPoint.x, endPoint.y);
+    ctx.moveTo(startPoint.x, startPoint.y);
+    ctx.lineTo(endPoint.x, endPoint.y);
 
-	ctx.stroke();
+    ctx.stroke();
 };
 
 var drawBackground = function(ctx){
-	// x軸とy軸の描写
-	drawLine(ctx, point(-canvas.width/2,0), point(canvas.width/2,0));
-	drawLine(ctx, point(0,-canvas.height/2), point(0,canvas.height/2));
-	
-	// 中心に半径100の円を描写
-	var r = 100;
-	drawCircle(ctx,point(0,0),r);
+    // x軸とy軸の描写
+    drawLine(ctx, point(-canvas.width/2,0), point(canvas.width/2,0));
+    drawLine(ctx, point(0,-canvas.height/2), point(0,canvas.height/2));
+    
+    // 中心に半径100の円を描写
+    var r = 100;
+    drawCircle(ctx,point(0,0),r);
 };
 
 var saveData = function(canvas){

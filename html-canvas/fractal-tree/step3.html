@@ -10,32 +10,32 @@ var radian = function( degree ){ return degree * Math.PI/180; };
 // centerPoint ... 中心の点
 // r ... 半径
 var drawCircle = function(ctx,centerPoint,r){
-	ctx.beginPath();
-	
-	var startAngle = radian(0);
-	var endAngle   = radian(360);
-	ctx.arc(centerPoint.x, centerPoint.y, r, startAngle, endAngle, false)
-	
-	ctx.stroke();
+    ctx.beginPath();
+    
+    var startAngle = radian(0);
+    var endAngle   = radian(360);
+    ctx.arc(centerPoint.x, centerPoint.y, r, startAngle, endAngle, false)
+    
+    ctx.stroke();
 };
 
 var drawLine = function(ctx, startPoint, endPoint){
-	ctx.beginPath();
+    ctx.beginPath();
 
-	ctx.moveTo(startPoint.x, startPoint.y);
-	ctx.lineTo(endPoint.x, endPoint.y);
+    ctx.moveTo(startPoint.x, startPoint.y);
+    ctx.lineTo(endPoint.x, endPoint.y);
 
-	ctx.stroke();
+    ctx.stroke();
 };
 
 var drawBackground = function(ctx){
-	// x軸とy軸の描写
-	drawLine(ctx, point(-canvas.width/2,0), point(canvas.width/2,0));
-	drawLine(ctx, point(0,-canvas.height/2), point(0,canvas.height/2));
-	
-	// 中心に半径100の円を描写
-	var r = 50;
-	drawCircle(ctx,point(0,0),r);
+    // x軸とy軸の描写
+    drawLine(ctx, point(-canvas.width/2,0), point(canvas.width/2,0));
+    drawLine(ctx, point(0,-canvas.height/2), point(0,canvas.height/2));
+    
+    // 中心に半径100の円を描写
+    var r = 50;
+    drawCircle(ctx,point(0,0),r);
 };
 
 // 行列の積の計算
@@ -54,88 +54,82 @@ var times = function( mA, mB ){
 };
 
 var drawOneTree = function(ctx, matrix, counter){
-	if(counter<0){
-	   	return ;
-   	}
+    if(counter<0){
+        return ;
+    }
 
-	var transform = function( aPoint ){
-		// [x] [ a b tx ]   [x1]   [ a*x1 + b*y1 + tx*1 ]
-		// [y] [ c d ty ] * [y1] = [ c*x1 + d*y1 + ty*1 ]
-		// [1] [ 0 0 1  ]   [1 ] = [1]
+    var transform = function( aPoint ){
+        // [x] [ a b tx ]   [x1]   [ a*x1 + b*y1 + tx*1 ]
+        // [y] [ c d ty ] * [y1] = [ c*x1 + d*y1 + ty*1 ]
+        // [1] [ 0 0 1  ]   [1 ] = [1]
 
-		var a = matrix[0];
-		var b = matrix[1];
-		var c = matrix[3];
-		var d = matrix[4];
-		var tx= matrix[2];
-		var ty= matrix[5];
+        var a = matrix[0];
+        var b = matrix[1];
+        var c = matrix[3];
+        var d = matrix[4];
+        var tx= matrix[2];
+        var ty= matrix[5];
 
-		return point( a*aPoint.x + b*aPoint.y + tx,
-			          c*aPoint.x + d*aPoint.y + ty );
-	};
-
-
-	//var r = 100;
-	var r = 50;
-	
-	var x1 = r * Math.cos( radian(180+70) );
-	var y1 = r * Math.sin( radian(180+70) );
-	drawLine(ctx, transform(point(0,0)), transform(point(x1,y1)));
-	
-	var x2 = r * Math.cos( radian(180+70+40) );
-	var y2 = r * Math.sin( radian(180+70+40) );
-	drawLine(ctx, transform(point(0,0)), transform(point(x2,y2)));
-	
-	var x3 = r * Math.cos( radian(90) );
-	var y3 = r * Math.sin( radian(90) );
-	drawLine(ctx, transform(point(0,0)), transform(point(x3,y3)));
+        return point( a*aPoint.x + b*aPoint.y + tx,
+                      c*aPoint.x + d*aPoint.y + ty );
+    };
 
 
-
-	//
-	// 再帰
-	//
-
-	// --- 左側 --------------------------------------------------------------------
-	// rotate
-	var degree1 = -20;
-	var newMatrixR1 =[ Math.cos(radian(degree1)), -Math.sin(radian(degree1)), 0,
-			           Math.sin(radian(degree1)),  Math.cos(radian(degree1)), 0,
-				       0,                      0,                     1];
-	// translate
-	var newMatrixT1 =[ 1, 0, x1,
-		               0, 1, y1,
-					   0, 0, 1];
-
-	// 回転→平行移動の順に変換
-	var newMatrix1 = times( newMatrixT1, newMatrixR1 );
-
-	drawOneTree(ctx, times(newMatrix1,matrix), counter-1);
-	// -----------------------------------------------------------------------
+    var r = 50;
+    
+    var x1 = r * Math.cos( radian(180+70) );
+    var y1 = r * Math.sin( radian(180+70) );
+    drawLine(ctx, transform(point(0,0)), transform(point(x1,y1)));
+    
+    var x2 = r * Math.cos( radian(180+70+40) );
+    var y2 = r * Math.sin( radian(180+70+40) );
+    drawLine(ctx, transform(point(0,0)), transform(point(x2,y2)));
+    
+    var x3 = r * Math.cos( radian(90) );
+    var y3 = r * Math.sin( radian(90) );
+    drawLine(ctx, transform(point(0,0)), transform(point(x3,y3)));
 
 
 
-	// --- 右側 --------------------------------------------------------------------
-	// rotate
-	var degree2 = 20;
-	var newMatrixR2 =[ Math.cos(radian(degree2)), -Math.sin(radian(degree2)), 0,
-			           Math.sin(radian(degree2)),  Math.cos(radian(degree2)), 0,
-				       0,                      0,                     1];
-	// translate
-	var newMatrixT2 =[ 1, 0, x2,
-		               0, 1, y2,
-					   0, 0, 1];
+    //
+    // 再帰
+    //
 
-	// 回転→平行移動の順に変換
-	var newMatrix2 = times( newMatrixT2, newMatrixR2 );
+    // --- 左側 --------------------------------------------------------------------
+    // rotate
+    var degree1 = -20;
+    var newMatrixR1 =[ Math.cos(radian(degree1)), -Math.sin(radian(degree1)), 0,
+                       Math.sin(radian(degree1)),  Math.cos(radian(degree1)), 0,
+                       0,                      0,                     1];
+    // translate
+    var newMatrixT1 =[ 1, 0, x1,
+                       0, 1, y1,
+                       0, 0, 1];
 
-	drawOneTree(ctx, times(newMatrix2,matrix), counter-1);
-	// -----------------------------------------------------------------------
+    // 回転→平行移動の順に変換
+    var newMatrix1 = times( newMatrixT1, newMatrixR1 );
+
+    drawOneTree(ctx, times(newMatrix1,matrix), counter-1);
+    // -----------------------------------------------------------------------
 
 
 
+    // --- 右側 --------------------------------------------------------------------
+    // rotate
+    var degree2 = 20;
+    var newMatrixR2 =[ Math.cos(radian(degree2)), -Math.sin(radian(degree2)), 0,
+                       Math.sin(radian(degree2)),  Math.cos(radian(degree2)), 0,
+                       0,                      0,                     1];
+    // translate
+    var newMatrixT2 =[ 1, 0, x2,
+                       0, 1, y2,
+                       0, 0, 1];
 
+    // 回転→平行移動の順に変換
+    var newMatrix2 = times( newMatrixT2, newMatrixR2 );
 
+    drawOneTree(ctx, times(newMatrix2,matrix), counter-1);
+    // -----------------------------------------------------------------------
 };
 
 var saveData = function(canvas){
@@ -169,14 +163,14 @@ ctx.strokeStyle = colorB;
 ctx.lineWidth = 1.0;
 
 var matrix = [1,0,0,
-	          0,1,0,
-			  0,0,1];
+              0,1,0,
+              0,0,1];
 drawOneTree(ctx, matrix,5);
 
 
 
 
-saveData(canvas);
+//saveData(canvas);
 
 </script>
 
