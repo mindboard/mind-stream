@@ -119,7 +119,7 @@ var drawOneTree = function(ctx, matrix, counter){
     var degree2 = 20;
     var newMatrixR2 =[ Math.cos(radian(degree2)), -Math.sin(radian(degree2)), 0,
                        Math.sin(radian(degree2)),  Math.cos(radian(degree2)), 0,
-                       0,                      0,                     1];
+                       0,                      0,                             1];
     // translate
     var newMatrixT2 =[ 1, 0, x2,
                        0, 1, y2,
@@ -140,9 +140,7 @@ var saveData = function(canvas){
 
 
 // 事前準備
-var colorA = "#999"; //gray
 var colorB = "#33F"; //blue
-var colorC = "#3F3"; //green
 
 var canvas = document.getElementById("myCanvas");
 var ctx = canvas.getContext("2d");
@@ -150,15 +148,6 @@ var ctx = canvas.getContext("2d");
 // キャンバスの原点を中央に移動
 ctx.translate(canvas.width/2, canvas.height/2);
 
-// setup line
-ctx.strokeStyle = colorA;
-ctx.lineWidth = 1.0;
-
-//drawBackground(ctx);
-
-// --------------------------------------------
-
-// setup line
 ctx.strokeStyle = colorB;
 ctx.lineWidth = 1.0;
 
