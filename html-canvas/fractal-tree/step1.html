@@ -1,0 +1,98 @@
+<html>
+<body style="background-color:#ccc;">
+<canvas id="myCanvas" style="background-color:white;border:none;" width="250" height="250" />
+
+<script >
+
+var point = function( x, y ){ return {x:x,y:y}; };
+var radian = function( degree ){ return degree * Math.PI/180; };
+
+// centerPoint ... 中心の点
+// r ... 半径
+var drawCircle = function(ctx,centerPoint,r){
+	ctx.beginPath();
+	
+	var startAngle = radian(0);
+	var endAngle   = radian(360);
+	ctx.arc(centerPoint.x, centerPoint.y, r, startAngle, endAngle, false)
+	
+	ctx.stroke();
+};
+
+var drawLine = function(ctx, startPoint, endPoint){
+	ctx.beginPath();
+
+	ctx.moveTo(startPoint.x, startPoint.y);
+	ctx.lineTo(endPoint.x, endPoint.y);
+
+	ctx.stroke();
+};
+
+var drawBackground = function(ctx){
+	// x軸とy軸の描写
+	drawLine(ctx, point(-canvas.width/2,0), point(canvas.width/2,0));
+	drawLine(ctx, point(0,-canvas.height/2), point(0,canvas.height/2));
+	
+	// 中心に半径100の円を描写
+	var r = 100;
+	drawCircle(ctx,point(0,0),r);
+};
+
+var saveData = function(canvas){
+    var dataUrl = canvas.toDataURL("image/png");
+    var fixedDataUrl = dataUrl.replace("image/png", "image/octet-stream");
+    window.open(fixedDataUrl,"save");
+};
+
+
+// 事前準備
+var colorA = "#999"; //gray
+var colorB = "#33F"; //blue
+
+var canvas = document.getElementById("myCanvas");
+var ctx = canvas.getContext("2d");
+
+// キャンバスの原点を中央に移動
+ctx.translate(canvas.width/2, canvas.height/2);
+
+// setup line
+ctx.strokeStyle = colorA;
+ctx.lineWidth = 1.0;
+
+drawBackground(ctx);
+
+// --------------------------------------------
+
+ctx.strokeStyle = "#F33";
+ctx.lineWidth = 2.0;
+var x1 = 100 * Math.cos( radian(0) );
+var y1 = 100 * Math.sin( radian(0) );
+drawLine(ctx, point(0,0), point(x1,y1));
+
+// setup line
+ctx.strokeStyle = colorB;
+ctx.lineWidth = 1.0;
+
+var r = 100;
+var x = 0;
+var y = 0;
+
+x = r * Math.cos( radian(180+70) );
+y = r * Math.sin( radian(180+70) );
+drawLine(ctx, point(0,0), point(x,y));
+
+x = r * Math.cos( radian(180+70+40) );
+y = r * Math.sin( radian(180+70+40) );
+drawLine(ctx, point(0,0), point(x,y));
+
+x = r * Math.cos( radian(90) );
+y = r * Math.sin( radian(90) );
+drawLine(ctx, point(0,0), point(x,y));
+
+
+//saveData(canvas);
+
+</script>
+
+</body>
+</html>
