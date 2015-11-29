@@ -78,14 +78,17 @@ var drawOneTree = function(ctx, matrix, counter){
     // 半径(長さ) 50
     var r = 50;
     
-    var x1 = r * Math.cos( radian(180+70) );
-    var y1 = r * Math.sin( radian(180+70) );
+    // 原点から左上への線分
+    var x1 = r * Math.cos( radian(90*3-20) );
+    var y1 = r * Math.sin( radian(90*3-20) );
     drawLine(ctx, transform(point(0,0)), transform(point(x1,y1)));
     
-    var x2 = r * Math.cos( radian(180+70+40) );
-    var y2 = r * Math.sin( radian(180+70+40) );
+    // 原点から右上への線分
+    var x2 = r * Math.cos( radian(90*3+20) );
+    var y2 = r * Math.sin( radian(90*3+20) );
     drawLine(ctx, transform(point(0,0)), transform(point(x2,y2)));
     
+    // 原点から下への線分
     var x3 = r * Math.cos( radian(90) );
     var y3 = r * Math.sin( radian(90) );
     drawLine(ctx, transform(point(0,0)), transform(point(x3,y3)));
