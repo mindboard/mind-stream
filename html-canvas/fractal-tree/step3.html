@@ -33,7 +33,7 @@ var drawBackground = function(ctx){
     drawLine(ctx, point(-canvas.width/2,0), point(canvas.width/2,0));
     drawLine(ctx, point(0,-canvas.height/2), point(0,canvas.height/2));
     
-    // 中心に半径100の円を描写
+    // 中心に半径50の円を描写
     var r = 50;
     drawCircle(ctx,point(0,0),r);
 };
@@ -75,6 +75,7 @@ var drawOneTree = function(ctx, matrix, counter){
     };
 
 
+    // 半径(長さ) 50
     var r = 50;
     
     var x1 = r * Math.cos( radian(180+70) );
