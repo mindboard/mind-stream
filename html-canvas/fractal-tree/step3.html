@@ -59,9 +59,9 @@ var drawOneTree = function(ctx, matrix, counter){
     }
 
     var transform = function( aPoint ){
-        // [x] [ a b tx ]   [x1]   [ a*x1 + b*y1 + tx*1 ]
-        // [y] [ c d ty ] * [y1] = [ c*x1 + d*y1 + ty*1 ]
-        // [1] [ 0 0 1  ]   [1 ] = [1]
+        // [ a b tx ]   [x1]   [ a*x1 + b*y1 + tx*1 ]
+        // [ c d ty ] * [y1] = [ c*x1 + d*y1 + ty*1 ]
+        // [ 0 0 1  ]   [1 ]   [1]
 
         var a = matrix[0];
         var b = matrix[1];
